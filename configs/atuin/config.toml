@@ -1,0 +1,10 @@
+# Enter accepts. Emacs keymap.
+enter_accept = true
+keymap_mode = "emacs"
+
+[keymap.emacs]
+"alt-backspace" = "delete-word-before"
+"left" = [
+  { when = "cursor-at-start", action = "cycle-filter-mode" },
+  { action = "cursor-left" },
+]

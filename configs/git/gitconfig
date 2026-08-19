@@ -1,0 +1,38 @@
+# Shared git settings. Identity and signing live in ~/.gitconfig.local
+# (see gitconfig.local.example).
+[core]
+	excludesfile = ~/.gitignore_global
+	editor = nvim
+	pager = delta --dark --line-numbers --side-by-side
+[interactive]
+	diffFilter = delta --color-only --dark
+[delta]
+	navigate = true
+[gpg]
+	format = ssh
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[merge]
+	conflictStyle = zdiff3
+	tool = meld
+[mergetool]
+	keepBackup = false
+[advice]
+	addIgnoredFile = false
+	defaultBranchName = false
+[init]
+	defaultBranch = main
+[color]
+	pager = false
+[pull]
+	rebase = true
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
+[include]
+	path = ~/.gitconfig.local

@@ -1,0 +1,12 @@
+# Copy to ~/.gitconfig.local (untracked). Included last by gitconfig so
+# these keys win. Git ignores a missing include.
+[user]
+	name = Your Name
+	email = you@example.com
+	signingkey = ~/.ssh/id_ed25519.pub
+[commit]
+	gpgsign = true
+[http]
+	cookiefile = ~/.gitcookies
+[filter "lfs"]
+	required = true

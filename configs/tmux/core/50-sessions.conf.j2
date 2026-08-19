@@ -1,0 +1,6 @@
+# Quick-launch persistent sessions (Shift+Alt+7890 -> & * ( )) and the
+# fzf-tools ad-hoc session picker.
+bind -n 'M-&' run-shell "~/bin/tmux-session-persistent dotfiles"
+bind -n 'M-*' run-shell "~/bin/tmux-session-persistent dotfiles-ai"
+bind -n 'M-(' run-shell "~/bin/tmux-session-persistent obsidian"
+bind -n 'M-)' run-shell '#{E:@popup_sessions}'

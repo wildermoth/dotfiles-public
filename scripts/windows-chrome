@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# WSL helper: open a URL/file in Windows Chrome.
+chrome='/mnt/c/Program Files/Google/Chrome/Application/chrome.exe'
+"$chrome" "$@" &>/dev/null &

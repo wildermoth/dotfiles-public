@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# View a tmux pane's scrollback history in nvim
+# Usage: tmux-pane-history <pane-id>
+
+if (($# == 0)); then
+	printf 'Usage: tmux-pane-history <pane-id>\n' >&2
+	exit 1
+fi
+
+pane_id=$1
+history_file=/tmp/tmux-history-$pane_id
+nvim_cmd="nvim -c 'setlocal buftype=nofile bufhidden=wipe noswapfile'"
+
+tmux capture-pane -pS - -t "$pane_id" >"$history_file" || exit
+
+tmux new-window -n history \
+	"$nvim_cmd '$history_file' && rm -f '$history_file'"

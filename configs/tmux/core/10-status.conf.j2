@@ -1,0 +1,35 @@
+# Status bar visuals + the MouseDown1Status click handler for the ranges below.
+
+set -g status-left-length 20
+
+# Status bar styling - vibrant colors
+set -g status-style "bg=<<ui.bg>>,fg=<<ui.fg>>"
+
+# Clickable status: session name opens the session picker, [+] adds and [-] kills a window.
+set -g status-left "#[range=user|sessions,fg=<<ui.fg>>,bg=<<ui.surface>>,bold] #S #[norange,default] "
+set -g status-right "#[range=user|newwindow,fg=<<ui.success>>,bg=<<ui.surface>>,bold] + #[norange,default] #[range=user|killwindow,fg=<<ui.error>>,bg=<<ui.surface>>,bold] - #[norange,default] "
+
+bind -n MouseDown1Status {
+	if -F '#{==:#{mouse_status_range},sessions}' {
+		run-shell '#{E:@popup_sessions}'
+	} {
+		if -F '#{==:#{mouse_status_range},newwindow}' {
+			new-window -a -c '#{pane_current_path}'
+		} {
+			if -F '#{==:#{mouse_status_range},killwindow}' {
+				kill-window
+			} {
+				select-window -t=
+			}
+		}
+	}
+}
+
+# Window status styling
+set -g window-status-current-style "fg=<<ui.fg>>,bg=<<ui.surface>>,bold"
+set -g window-status-style "fg=<<ui.muted>>"
+# Below @status_narrow columns, windows are #I only (phone). e|< is numeric;
+# #{<:} is string compare and treats 100 as less than 80.
+set -g @status_narrow 80
+set -g window-status-format "#{?#{e|<:#{client_width},#{@status_narrow}}, #I , #I:#{window_name} }"
+set -g window-status-current-format "#{?#{e|<:#{client_width},#{@status_narrow}}, #I , #I:#{window_name} }"

@@ -1,0 +1,12 @@
+.gemini
+.pi
+.codex
+.claude/
+wt-*
+
+.venv
+.env.emulators
+.coverage
+.tldrignore
+
+.playwright-cli

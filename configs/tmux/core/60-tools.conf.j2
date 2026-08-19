@@ -1,0 +1,10 @@
+# External tool launchers.
+
+# FZF tools menu - Control+u
+bind -n C-u run-shell '#{@popup} "cd #{pane_current_path} && ${FZF_TOOLS_DIR:-$HOME/fzf-tools}/bin/fzf-popup #{pane_id}"'
+
+# View the current pane's scrollback in nvim with Shift+Alt+Delete
+bind -n M-S-DC run-shell "~/bin/tmux-pane-history '#{pane_id}'"
+
+# Alt+Shift+.: open lazygit in a new window immediately after the current one
+bind -n 'M->' new-window -a -n lazygit -c "#{pane_current_path}" lazygit

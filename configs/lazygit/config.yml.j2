@@ -1,0 +1,100 @@
+# Colors from configs/theme/palette.json via generate_configs.sh.
+# skip the extra prompt after closing external editors
+promptToReturnFromSubprocess: false
+git:
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+    - colorArg: always
+      pager: delta --dark --paging=never --line-numbers --side-by-side --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+  wrapLinesInStagingView: true
+  autoStageResolvedConflicts: false
+  overrideGpg: true
+  merging:
+    mergeCommand: 'git mergetool'
+  confirmOnDelete: false
+gui:
+  sidePanelWidth: 0.15
+  skipSwitchWorktreeOnCheckoutWarning: true
+  theme:
+    # border color of focused window
+    activeBorderColor:
+      - '<<ui.border_active>>'
+      - bold
+
+    # border color of non-focused windows
+    inactiveBorderColor:
+      - '<<ui.border>>'
+
+    # border color of focused window when searching in that window
+    searchingActiveBorderColor:
+      - '<<ui.border_active>>'
+      - bold
+
+    # color of keybindings help text in the bottom line
+    optionsTextColor:
+      - '<<ui.fg>>'
+
+    # background color of selected line.
+    # see https://github.com/jesseduffield/lazygit/blob/master/docs/config.md#highlighting-the-selected-line
+    selectedLineBgColor:
+      - '<<diff.selected_line>>'
+
+    # background color of selected line when view doesn't have focus.
+    inactiveViewSelectedLineBgColor:
+      - '<<ui.surface>>'
+
+    # foreground color of copied commit
+    cherryPickedCommitFgColor:
+      - '<<git.copied_fg>>'
+
+    # background color of copied commit
+    cherryPickedCommitBgColor:
+      - '<<git.copied_bg>>'
+
+    # foreground color of marked base commit (for rebase)
+    markedBaseCommitFgColor:
+      - '<<git.rebase_fg>>'
+
+    # background color of marked base commit (for rebase)
+    markedBaseCommitBgColor:
+      - '<<git.rebase_bg>>'
+
+    # color for file with unstaged changes
+    unstagedChangesColor:
+      - '<<git.unstaged>>'
+
+    # default text color
+    defaultFgColor:
+      - '<<ui.fg>>'
+
+customCommands:
+  - key: "C"
+    command: '${FZF_TOOLS_DIR:-$HOME/fzf-tools}/bin/git-conventional-commit'
+    description: "commit with conventional commit (fzf popup)"
+    context: "files"
+    output: terminal
+  - key: "D"
+    context: "localBranches"
+    description: "Force delete local branch (removes worktree first if exists)"
+    loadingText: "Deleting branch..."
+    command: >-
+      bash -lc '
+        branch={{.SelectedLocalBranch.Name | quote}};
+        wt_path=$(git worktree list | grep " \[${branch}\]$" | sed "s/[[:space:]].*//");
+        if [ -n "$wt_path" ]; then
+          git worktree remove --force "$wt_path";
+        fi;
+        git branch -D "$branch"
+      '
+  - key: "D"
+    context: "worktrees"
+    description: "Force delete selected worktree and matching branch"
+    loadingText: "Removing worktree and deleting branch"
+    command: >-
+      bash -lc '
+        path={{.SelectedWorktree.Path | quote}};
+        branch="$(basename "$path")";
+        git worktree remove --force "$path" &&
+        git branch -D "$branch"
+      '

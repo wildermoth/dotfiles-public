@@ -1,0 +1,16 @@
+# Zsh config. https://github.com/romkatv/zsh4humans/blob/v5/README.md.
+#
+# This file is a shim: everything lives in configs/zsh/core/ (numbered,
+# load-order-sensitive) and configs/zsh/modules/ (order-independent), sourced
+# from there. `|| return` on each core file aborts the whole shell config if
+# any of them fails.
+
+# Location of this dotfiles checkout; override if cloned somewhere else.
+# Exported so nvim/tmux/scripts see the same value as the shell.
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+export DOTFILES_DIR
+
+for core_zsh in "$DOTFILES_DIR/configs/zsh/core"/*.zsh(N); do
+  source "$core_zsh" || return
+done
+unset core_zsh

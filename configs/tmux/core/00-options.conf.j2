@@ -1,0 +1,29 @@
+# Core session/terminal options and reusable @popup snippets.
+
+# Prefix is Ctrl-t.
+set -g prefix C-t
+bind C-t send-prefix
+
+# Reload config
+bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+
+set -g extended-keys on
+set -g extended-keys-format csi-u
+
+set -g mouse on
+set -g history-limit 50000
+
+# Truecolor for Alacritty and 256color clients (Termux SSH).
+set -as terminal-overrides ",alacritty*:Tc"
+set -as terminal-overrides ",*256col*:Tc"
+
+set -g focus-events on
+
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+
+# Reusable snippets. tmux has no functions, but user options expand inside any
+# shell-command, and #{E:...} expands a value that itself contains #{...}.
+set -g @popup 'tmux display-popup -E -w 90% -h 80%'
+set -g @popup_sessions '#{@popup} ${FZF_TOOLS_DIR:-$HOME/fzf-tools}/bin/tmux_sessions || true'

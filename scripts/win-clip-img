@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+set -uo pipefail
+# Sync a Windows clipboard image into WSL.
+#   (no args)            load the image into xclip as image/png
+#   --save PATH          also save the image to PATH
+#   --path-to-clipboard  save to a temp file and put that file path
+#                        in the clipboard
+#
+# The bitmap is grabbed in an STA PowerShell call (retried a few times: the
+# clipboard is briefly locked right after a snip, and an image copied as a file
+# in Explorer arrives as a FileDropList rather than a bitmap) that writes to a
+# NATIVE Windows temp file; writing across a \\wsl UNC path can hang and
+# clipboard access needs STA. PowerShell output goes to a file (never a pipe) so
+# a slow or orphaned Windows process can't wedge us on a dangling descriptor.
+
+powershell='/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe'
+
+save_path=''
+path_mode=false
+while [[ $# -gt 0 ]]; do
+	case $1 in
+	--path-to-clipboard)
+		path_mode=true
+		shift
+		;;
+	--save)
+		save_path=$2
+		shift 2
+		;;
+	*)
+		shift
+		;;
+	esac
+done
+
+ps_out=$(mktemp) || exit
+trap 'rm -f "$ps_out"' EXIT
+
+timeout 15 "$powershell" -NoProfile -NonInteractive -STA -Command '
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+$img = $null
+for ($i = 0; $i -lt 5; $i++) {
+	try {
+		if ([System.Windows.Forms.Clipboard]::ContainsImage()) {
+			$img = [System.Windows.Forms.Clipboard]::GetImage()
+		} elseif ([System.Windows.Forms.Clipboard]::ContainsFileDropList()) {
+			foreach ($f in [System.Windows.Forms.Clipboard]::GetFileDropList()) {
+				if ($f -match "\.(png|jpg|jpeg|gif|bmp|webp)$") { $img = [System.Drawing.Image]::FromFile($f); break }
+			}
+		}
+	} catch { }
+	if ($img -ne $null) { break }
+	Start-Sleep -Milliseconds 150
+}
+if ($img -eq $null) { Write-Output "NOIMAGE"; exit }
+$tmp = [System.IO.Path]::Combine($env:TEMP, "winclipimg_" + [System.Guid]::NewGuid().ToString("N") + ".png")
+try { $img.Save($tmp, [System.Drawing.Imaging.ImageFormat]::Png) }
+catch { Write-Output ("ERR:" + $_.Exception.Message); exit }
+Write-Output $tmp
+' > "$ps_out" 2>/dev/null
+
+win_path=$(tr -d '\r\n' < "$ps_out")
+if [[ -z $win_path || $win_path == NOIMAGE ]]; then
+	echo 'No image in Windows clipboard' >&2
+	exit 1
+fi
+if [[ $win_path == ERR:* ]]; then
+	echo "Clipboard image save failed: ${win_path#ERR:}" >&2
+	exit 1
+fi
+
+wsl_path=$(wslpath -u "$win_path" 2>/dev/null)
+if [[ ! -s $wsl_path ]]; then
+	echo "Clipboard image save produced no data: $win_path" >&2
+	exit 1
+fi
+
+last='/tmp/win-clip-img-last.png'
+cp "$wsl_path" "$last" || exit
+
+# xclip forks a daemon to own the X selection; detach its std fds so it can't
+# hold a caller's pipe open (that hangs vim.system's callback until the next
+# clipboard write replaces the selection).
+if [[ $path_mode == true ]]; then
+	if ! printf '%s' "$last" | xclip -selection clipboard >/dev/null 2>&1; then
+		echo 'xclip failed' >&2
+		exit 1
+	fi
+	echo "Image saved to $last (path copied to clipboard)"
+else
+	if ! xclip -selection clipboard -t image/png \
+		-i "$last" </dev/null >/dev/null 2>&1; then
+		echo 'xclip failed' >&2
+		exit 1
+	fi
+	echo "Image synced to clipboard (saved to $last)"
+fi
+
+if [[ -n $save_path ]]; then
+	cp "$last" "$save_path" || exit
+fi
+
+rm -f "$wsl_path" 2>/dev/null

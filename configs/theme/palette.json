@@ -1,0 +1,70 @@
+{
+  "palette": {
+    "gray": "#848bbd",
+    "carrot": "#f39237",
+    "pink": "#ff7edb",
+    "cyan": "#3bf4fb",
+    "blue_bright": "#2ee2fa",
+    "yellow": "#ffe347",
+    "red": "#fe4450",
+    "green_bright": "#72f1b8",
+    "purple": "#af125a",
+    "white_bluish": "#a2c7e5",
+    "white": "#fbf9ff",
+    "raisin0": "#262335",
+    "raisin2": "#353163",
+    "raisin3": "#423e77",
+    "diff_green": "#14342b",
+    "diff_blue": "#243345",
+    "diff_diff": "#425367",
+    "diff_red": "#650d1b",
+    "orange": "#ef9f76",
+    "visual_bg": "#623175",
+    "pastel_purple": "#b27ec4"
+  },
+  "ui": {
+    "bg": "raisin0",
+    "fg": "white_bluish",
+    "muted": "gray",
+    "surface": "raisin2",
+    "accent": "pink",
+    "border": "pastel_purple",
+    "border_active": "cyan",
+    "visual": "visual_bg",
+    "orange": "orange",
+    "carrot": "carrot",
+    "success": "green_bright",
+    "warn": "yellow",
+    "error": "red"
+  },
+  "git": {
+    "add": "green_bright",
+    "change": "blue_bright",
+    "delete": "red",
+    "changedelete": "carrot",
+    "untracked": "cyan",
+    "unstaged": "red",
+    "copied_fg": "blue_bright",
+    "copied_bg": "cyan",
+    "rebase_fg": "blue_bright",
+    "rebase_bg": "yellow"
+  },
+  "diff": {
+    "add_bg": "diff_green",
+    "add_fg": "green_bright",
+    "change_bg": "diff_blue",
+    "change_fg": "blue_bright",
+    "delete_bg": "diff_red",
+    "delete_fg": "red",
+    "text_bg": "diff_diff",
+    "text_fg": "blue_bright",
+    "selected_line": "diff_blue"
+  },
+  "prompt": {
+    "dir_bg": "raisin3",
+    "dir_fg": "white",
+    "vcs_clean_bg": "visual_bg",
+    "vcs_dirty_bg": "purple",
+    "vcs_fg": "white"
+  }
+}

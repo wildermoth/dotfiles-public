@@ -1,0 +1,27 @@
+CLAUDE.md
+AGENTS.md
+index.md
+
+configs/keyboard/karabiner.json
+configs/keyboard/kanata/main.resolved.kbd
+configs/lazygit/config.yml
+configs/tmux/tmux.conf
+configs/zsh/core/05-os.zsh
+configs/alacritty/alacritty.toml
+configs/alacritty/os-windows.toml
+configs/zsh/p10k.zsh
+
+configs/git/gitconfig.local
+
+.env
+.nvimlog
+.DS_Store
+tmp/
+/configs/zsh/zshrc.bak.*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/

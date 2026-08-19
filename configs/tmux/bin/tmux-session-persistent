@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Create or switch to a persistent tmux session
+# Usage: tmux-session-persistent <session-name>
+
+if (($# == 0)); then
+	printf 'Usage: tmux-session-persistent <session-name>\n' >&2
+	exit 1
+fi
+
+session_name=$1
+
+case $session_name in
+dotfiles)
+	directory=${DOTFILES_DIR:-$HOME/dotfiles}
+	;;
+dotfiles-ai)
+	directory=${DOTFILES_AI_DIR:-$HOME/dotfiles-ai}
+	;;
+obsidian)
+	directory=${OBSIDIAN_PATH:-$HOME/obsidian}
+	;;
+*)
+	printf 'unknown session: %s\n' "$session_name" >&2
+	exit 1
+	;;
+esac
+
+if [[ ! -d $directory ]]; then
+	printf 'directory not found: %s\n' "$directory" >&2
+	exit 1
+fi
+
+if ! tmux has-session -t="$session_name" 2>/dev/null; then
+	tmux new-session -ds "$session_name" -c "$directory" || exit
+fi
+
+if [[ -z $TMUX ]]; then
+	tmux attach-session -t "$session_name"
+else
+	tmux switch-client -t "$session_name"
+fi

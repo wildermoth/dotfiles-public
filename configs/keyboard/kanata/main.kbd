@@ -1,0 +1,113 @@
+#|
+Kanata config.
+
+Design goals:
+- Stock US/QWERTY at the OS level.
+- Colemak-DH ANSI Wide handled entirely by Kanata.
+- One shared source of truth for Tab/Caps layers and modifier behavior.
+- Keep the current file clean and stable before adding Windows-specific aliases.
+
+Notes:
+- This is currently the working macOS-first baseline.
+- FlashSpace workspace switching is wired through switch_window.sh.
+|#
+
+(defcfg
+  danger-enable-cmd yes
+  process-unmapped-keys yes
+  concurrent-tap-hold yes
+  log-layer-changes no
+  override-release-on-activation yes
+  delegate-to-first-layer yes
+)
+
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
+)
+
+(defvar
+  tap-timeout 175
+  hold-timeout 110
+)
+
+(defalias
+  tab-layer  (layer-toggle tabnav)
+  caps-layer (layer-toggle capsnav)
+
+  caps-tap A-s
+
+  ;; Shared tap-hold timings. Tab is biased for immediate layer use.
+  tabmod (tap-hold-press $tap-timeout $hold-timeout tab @tab-layer)
+  capmod (tap-hold-press $tap-timeout $hold-timeout @caps-tap @caps-layer)
+
+  ;; Current physical modifier order:
+  ;; physical Ctrl -> Command
+  ;; physical Win  -> Control
+  ;; physical Alt  -> Option
+  phys-lctl lmet
+  phys-lmet lctl
+  phys-lalt lalt
+  phys-ralt ralt
+  phys-rmet rctl
+  phys-rctl rmet
+
+  mod-cmd lmet
+  mod-opt lalt
+  mod-shift lsft
+  mod-ctrl lctl
+
+  lpar S-9
+  rpar S-0
+  lbrace S-[
+  rbrace S-]
+  opt-shift (multi lalt lsft)
+  reload lrld
+
+  ws-code (cmd-log none error __DOTFILES_DIR__/configs/keyboard/kanata/os/macos/switch_window.sh Code)
+  ws-chrome (cmd-log none error __DOTFILES_DIR__/configs/keyboard/kanata/os/macos/switch_window.sh Chrome)
+  ws-chat (cmd-log none error __DOTFILES_DIR__/configs/keyboard/kanata/os/macos/switch_window.sh "Google Chat")
+  ws-msg (cmd-log none error __DOTFILES_DIR__/configs/keyboard/kanata/os/macos/switch_window.sh Messenger)
+  ws-anki (cmd-log none error __DOTFILES_DIR__/configs/keyboard/kanata/os/macos/switch_window.sh Anki)
+
+  os-copy M-c
+  os-cut M-x
+  os-paste M-v
+  os-save M-s
+  os-undo M-z
+  os-focus-location M-l
+  os-prev-tab C-S-tab
+  os-next-tab C-tab
+  os-close-tab M-w
+  os-new-tab M-t
+  os-screenshot C-S-3
+  os-print-screen @os-screenshot
+  os-opt-shift @opt-shift
+)
+
+(deflayer base
+  grv         1           2           3    4           5           6           =  7  8  9  0     -    bspc
+  @tabmod     q           w           f    p           b           [           j  l  u  y  ;     '    \
+  @capmod     a           r           s    t           g           ]           m  n  e  i  o     ret
+  lsft        x           c           d    v           z           /           k  h  ,  .  rsft
+  @phys-lctl  @phys-lmet  @phys-lalt  spc  @phys-ralt  @phys-rmet  @phys-rctl
+)
+
+(deflayer tabnav
+  _  _              _                   _             _             _            _  @lpar  @rpar  [  ]  @lbrace  @rbrace  _
+  _  @os-close-tab  @os-focus-location  @os-prev-tab  @os-next-tab  @os-new-tab  _  -      7      8  9  _        _        _
+  _  @mod-cmd       @mod-opt            @mod-shift    @mod-ctrl     _            _  =      4      5  6  bspc     ret
+  _  _              _                   _             _             _            /  0      1      2  3  _
+  _  _              _                   spc           _             _            _
+)
+
+(deflayer capsnav
+  @reload  @ws-code  @ws-chrome  @ws-chat        @ws-msg    @ws-anki       _                   _                 _     _     _         _     _    _
+  _        esc       _           @os-screenshot  _          _              _                   pgup              home  up    end       del   _    \
+  _        @mod-cmd  @mod-opt    @mod-shift      @mod-ctrl  @os-opt-shift  _                   pgdn              left  down  rght      bspc  ret
+  _        @os-cut   @os-copy    @os-save        @os-paste  @os-undo       @os-focus-location  @os-print-screen  bspc  tab   XX        _
+  _        _         _           esc             _          _              _
+)

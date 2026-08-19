@@ -1,0 +1,34 @@
+# Copy mode: OS-picked clipboard tool, vim-style keys, and copy-mode-vi binds.
+
+<% if OS == "mac" %>
+set -g copy-command "pbcopy"
+<% elif OS == "wsl" %>
+set -g copy-command "xclip -selection clipboard -in"
+<% endif %>
+
+set -g mode-keys vi
+
+# Vim-style visual selection (V and C-v already match tmux defaults; only v differs)
+bind -T copy-mode-vi v send-keys -X begin-selection
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel
+
+# Option/Ctrl-Left/Right arrive as C-Left/C-Right (Alacritty word-move sequences)
+bind -T copy-mode-vi C-Left send-keys -X previous-word
+bind -T copy-mode-vi C-Right send-keys -X next-word-end
+
+# Copy previous command output (OSC 133 prompts from z4h)
+bind -n C-y {
+	copy-mode
+	send-keys -X previous-prompt -o
+	send-keys -X begin-selection
+	send-keys -X next-prompt
+	send-keys -X cursor-up
+	send-keys -X end-of-line
+	send-keys -X copy-pipe-and-cancel
+}
+
+# Copy mode toggle - Alt+Shift+' (M-" legacy / mac option_as_alt, M-S-' CSI-u)
+bind -n 'M-"' copy-mode
+bind -n "M-S-'" copy-mode
+bind -T copy-mode-vi 'M-"' send-keys -X cancel
+bind -T copy-mode-vi "M-S-'" send-keys -X cancel

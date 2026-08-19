@@ -1,0 +1,41 @@
+# OS-specific configuration. Must run before 06-fnm.zsh: on WSL, fnm needs to
+# win over the node that brew's shellenv below puts on PATH.
+
+<% if OS == "wsl" %>
+  # Sync PTY size with actual terminal dimensions (alacritty doesn't propagate
+  # window size through wsl.exe reliably)
+  [[ -x /usr/bin/resize ]] && /usr/bin/resize &>/dev/null
+
+  # Linux Homebrew for WSL (cached)
+  BREW_CACHE="/tmp/.brew_shellenv_cache_$(id -u)"
+  if [[ ! -f $BREW_CACHE ]]; then
+    if ! /home/linuxbrew/.linuxbrew/bin/brew shellenv > "$BREW_CACHE"; then
+      rm -f "$BREW_CACHE"
+    fi
+  fi
+  [[ -f $BREW_CACHE ]] && source "$BREW_CACHE"
+
+  # fnm: /run/user/1000 requires systemd; fall back to /tmp
+  if [[ ! -d ${XDG_RUNTIME_DIR:-} ]]; then
+    export XDG_RUNTIME_DIR="/tmp/runtime-$USER"
+    mkdir -p -m 700 "$XDG_RUNTIME_DIR"
+  fi
+
+  # WSL browser integration
+  if [[ -x $DOTFILES_DIR/scripts/windows-chrome ]]; then
+    export BROWSER="$DOTFILES_DIR/scripts/windows-chrome"
+  fi
+  export PATH="$PATH:/mnt/c/Windows:/mnt/c/Windows/System32"
+<% endif %>
+
+<% if OS == "mac" %>
+  if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+
+  # Control+Left/Right for word navigation
+  bindkey "^[[1;5D" backward-word
+  bindkey "^[[1;5C" forward-word
+<% endif %>

@@ -1,0 +1,26 @@
+# Pane splits, pane navigation/resize, and window create/kill/switch.
+
+# Splits (Alt+Shift+-/\: the shifted character already carries the modifier,
+# so M-_ and M-| are what actually arrives, not M-S-_/M-S-|)
+bind -n M-_ split-window -v -c "#{pane_current_path}"
+bind -n M-| split-window -h -c "#{pane_current_path}"
+
+# Pane navigation: Shift+Alt+arrows
+bind -n S-M-Left  select-pane -L
+bind -n S-M-Right select-pane -R
+bind -n S-M-Up    select-pane -U
+bind -n S-M-Down  select-pane -D
+
+# Pane resize: numpad-style (4=left, 6=right, 8=up, 5=down) by 5
+bind -n 'M-4' resize-pane -L 5
+bind -n 'M-6' resize-pane -R 5
+bind -n 'M-8' resize-pane -U 5
+bind -n 'M-5' resize-pane -D 5
+
+# Window create/kill: Shift+Alt+Pageup/Pagedown
+bind -n S-M-Pageup new-window -a -c "#{pane_current_path}"
+bind -n S-M-Pagedown kill-pane
+
+# Window switch: Shift+Alt+Home/End
+bind -n S-M-Home previous-window
+bind -n S-M-End next-window
